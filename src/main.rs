@@ -1,6 +1,7 @@
-pub mod app;
-
 use crate::app::create_router;
+
+pub mod app;
+pub mod domains;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
