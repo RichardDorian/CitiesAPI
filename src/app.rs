@@ -1,8 +1,11 @@
 use axum::{Router, http::StatusCode};
 
+use crate::domains::example::example_routes;
+
 pub fn create_router() -> Router {
   Router::new()
     .route("/health", axum::routing::get(health_check))
+    .merge(example_routes())
     .fallback(fallback)
 }
 
