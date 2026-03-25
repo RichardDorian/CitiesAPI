@@ -1,3 +1,6 @@
+mod test;
+
 fn main() {
-    println!("Hello, world!");
+  println!("Hello, world!");
+  test::test();
 }

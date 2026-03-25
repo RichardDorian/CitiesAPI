@@ -1,0 +1,21 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: local
+    hooks:
+      - id: rust-format
+        name: Rust format
+        entry: cargo fmt --
+        pass_filenames: false
+        types: [file, rust]
+        language: system
+      - id: rust-clippy
+        name: Rust clippy
+        entry: cargo clippy --
+        pass_filenames: false
+        types: [file, rust]
+        language: system
