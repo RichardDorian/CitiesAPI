@@ -1,0 +1,62 @@
+name: Trivy Security Scan
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    # Run weekly on Monday at 08:00 UTC to catch newly disclosed CVEs
+    - cron: "0 8 * * 1"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  fs-scan:
+    name: Filesystem Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: Run Trivy on filesystem (vuln + secret + misconfig)
+        uses: aquasecurity/trivy-action@0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-fs.sarif
+          trivy-config: trivy.yaml
+
+      - name: Upload filesystem scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v4.35.2
+        if: always()
+        with:
+          sarif_file: trivy-fs.sarif
+          category: trivy-fs
+
+  image-scan:
+    name: Container Image Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: Build Docker image
+        run: docker build -t citiesapi:${{ github.sha }} .
+
+      - name: Run Trivy on container image
+        uses: aquasecurity/trivy-action@0.36.0
+        with:
+          scan-type: image
+          image-ref: citiesapi:${{ github.sha }}
+          format: sarif
+          output: trivy-image.sarif
+          trivy-config: trivy.yaml
+
+      - name: Upload image scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v4.35.2
+        if: always()
+        with:
+          sarif_file: trivy-image.sarif
+          category: trivy-image
