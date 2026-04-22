@@ -1,0 +1,18 @@
+scan:
+  scanners:
+    - vuln
+    - secret
+    - misconfig
+
+severity:
+  - HIGH
+  - CRITICAL
+
+vulnerability:
+  ignore-unfixed: false
+
+exit-code: 1
+
+list-all-pkgs: true
+
+format: table
