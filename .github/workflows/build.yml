@@ -35,7 +35,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           push: true
-          platforms: linux/amd64, linux/arm64
-          tags: richarddorian/citiesapi:${{ github.sha }}
+          platforms: linux/amd64
+          tags: ${{ env.CONTAINER_REGISTRY }}/richarddorian/citiesapi:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

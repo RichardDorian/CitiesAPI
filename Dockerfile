@@ -1,66 +1,26 @@
-# Name of the compiled binary produced by Cargo (must match Cargo.toml package name).
-ARG APP_NAME=citiesapi
-
-################################################################################
-# Build stage (DOI Rust image)
-# This stage compiles the application.
-################################################################################
-
-FROM docker.io/library/rust:1.94-alpine@sha256:77237dd363a0b127bb5ef532c2d64c0deb380b738e43a9c4bdac73398d6d0a08 AS build
-
-# Re-declare args inside the stage if you want to use them here.
-ARG APP_NAME
-
-# All build steps happen inside /app.
+FROM lukemathwalker/cargo-chef:0.1.77-rust-1.95 AS chef
 WORKDIR /app
 
-# Install build dependencies needed to compile Rust crates on Alpine
-RUN apk add --no-cache \
-  clang=~16 \
-  lld=~16 \
-  musl-dev=~1.2 \
-  git=~2.43
+FROM chef AS planner
+COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
 
-# Build the application
-RUN --mount=type=bind,source=src,target=src \
-  --mount=type=bind,source=Cargo.toml,target=Cargo.toml \
-  --mount=type=bind,source=Cargo.lock,target=Cargo.lock \
-  --mount=type=cache,target=/app/target/ \
-  --mount=type=cache,target=/usr/local/cargo/git/db \
-  --mount=type=cache,target=/usr/local/cargo/registry/ \
-  cargo build --locked --release && \
-  cp ./target/release/$APP_NAME /bin/server
+FROM chef AS builder
+COPY --from=planner /app/recipe.json recipe.json
+# Build dependencies - this is the caching Docker layer!
+RUN cargo chef cook --release --recipe-path recipe.json
+# Build application
+COPY . .
+RUN cargo build --release --bin app
 
-################################################################################
-# Runtime stage (DOI Alpine image)
-# This stage runs the already-compiled binary with minimal dependencies.
-################################################################################
-
-FROM docker.io/library/alpine:3.19@sha256:6baf43584bcb78f2e5847d1de515f23499913ac9f12bdf834811a3145eb11ca1 AS final
+FROM docker.io/library/debian:trixie-slim AS runtime
 
 LABEL org.opencontainers.image.title="CitiesAPI"
 LABEL org.opencontainers.image.description="Simple cities API written in Rust."
-LABEL org.opencontainers.image.base.name="docker.io/library/alpine:3.18"
+LABEL org.opencontainers.image.base.name="docker.io/library/debian:trixie-slim"
 
-# Create a non-privileged user (recommended best practice)
-ARG UID=10001
-RUN adduser \
-  --disabled-password \
-  --gecos "" \
-  --home "/nonexistent" \
-  --shell "/sbin/nologin" \
-  --no-create-home \
-  --uid 10001 \
-  appuser
+WORKDIR /app
 
-# Drop privileges for runtime.
-USER appuser
+COPY --from=builder /app/target/release/app /usr/local/bin
 
-# Copy only the compiled binary from the build stage.
-COPY --from=build /bin/server /bin/
-
-# Document the port your app listens on.
-EXPOSE 2022
-
-# Start the application.
-CMD ["/bin/server"]
+ENTRYPOINT ["/usr/local/bin/app"]
