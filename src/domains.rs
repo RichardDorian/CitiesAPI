@@ -1,3 +1,3 @@
 pub mod city;
-pub mod entities;
+mod entities;
 pub mod example;
