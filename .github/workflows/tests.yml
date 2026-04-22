@@ -25,11 +25,8 @@ jobs:
 
           set +e
 
-          cargo llvm-cov test --workspace --no-report 2>&1 | tee artifacts/test-results.txt
+          cargo llvm-cov test --workspace --no-report 2>&1 | tee artifacts/test-results.raw.txt
           test_exit=${PIPESTATUS[0]}
-
-          cargo llvm-cov report --lcov --output-path coverage/lcov.info
-          lcov_exit=$?
 
           cargo llvm-cov report --html --output-dir coverage/html
           html_exit=$?
@@ -40,18 +37,16 @@ jobs:
             echo "Generated on $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
             echo
             echo '```text'
-            cat artifacts/test-results.txt
+            cat artifacts/test-results.raw.txt
             echo '```'
           } > artifacts/test-results.md
+
+          rm -f artifacts/test-results.raw.txt
 
           set -e
 
           if [ "$test_exit" -ne 0 ]; then
             exit "$test_exit"
-          fi
-
-          if [ "$lcov_exit" -ne 0 ]; then
-            exit "$lcov_exit"
           fi
 
           exit "$html_exit"
@@ -62,7 +57,5 @@ jobs:
         with:
           name: ci-artifacts
           path: |
-            artifacts/test-results.txt
             artifacts/test-results.md
-            coverage/lcov.info
             coverage/html
