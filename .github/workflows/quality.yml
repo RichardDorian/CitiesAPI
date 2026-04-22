@@ -31,8 +31,8 @@ jobs:
 
       - name: Install hadolint
         run: |
-          sudo wget -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/latest/download/hadolint-$(uname -s)-$(uname -m)
-          sudo chmod +x /usr/local/bin/hadolint
+          wget -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/latest/download/hadolint-$(uname -s)-$(uname -m)
+          chmod +x /usr/local/bin/hadolint
 
       - name: Run pre-commit hooks
         run: pre-commit run --all-files --show-diff-on-failure
