@@ -20,3 +20,12 @@ In the included compose file is included a Postgres 18 instance.
 uv tool install pre-commit
 pre-commit install
 ```
+
+## Tests
+
+Make sure you ran the migration and the .env is setup correctly.
+
+### Run the tests
+```sh
+cargo test
+```
