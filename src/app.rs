@@ -4,13 +4,13 @@ use crate::domains::example::example_routes;
 
 pub fn create_router() -> Router {
   Router::new()
-    .route("/health", axum::routing::get(health_check))
+    .route("/_health", axum::routing::get(health_check))
     .merge(example_routes())
     .fallback(fallback)
 }
 
-async fn health_check() -> &'static str {
-  "OK\n"
+async fn health_check() -> StatusCode {
+  StatusCode::NO_CONTENT
 }
 
 async fn fallback() -> (StatusCode, String) {
