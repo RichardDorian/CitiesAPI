@@ -28,10 +28,10 @@ jobs:
           cargo llvm-cov test --workspace --no-report 2>&1 | tee artifacts/test-results.txt
           test_exit=${PIPESTATUS[0]}
 
-          cargo llvm-cov report --workspace --lcov --output-path coverage/lcov.info
+          cargo llvm-cov report --lcov --output-path coverage/lcov.info
           lcov_exit=$?
 
-          cargo llvm-cov report --workspace --html --output-dir coverage/html
+          cargo llvm-cov report --html --output-dir coverage/html
           html_exit=$?
 
           {
