@@ -17,6 +17,6 @@ In the included compose file is included a Postgres 18 instance.
 ### Pre-commit
 
 ```sh
-uv tool add pre-commit
+uv tool install pre-commit
 pre-commit install
 ```
