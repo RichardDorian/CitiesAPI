@@ -58,7 +58,7 @@ impl TestServer {
 fn database_url_from_env() -> String {
   env::var("CITY_API_DB_URL")
     .or_else(|_| env::var("DATABASE_URL"))
-    .unwrap_or_else(|_| "postgres://oui:oui@127.0.0.1:5432/city_api".to_owned())
+    .unwrap_or_else(|_| "postgres://postgres:password@127.0.0.1:5432/city_api".to_owned())
 }
 
 fn connect_options(database_url: &str) -> PgConnectOptions {
