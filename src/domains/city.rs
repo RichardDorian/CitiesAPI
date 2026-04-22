@@ -1,10 +1,18 @@
-use axum::{Json, Router, extract::State, http::StatusCode, response::IntoResponse, routing::get};
-use sqlx::{PgPool};
+use axum::{
+  Json, Router,
+  extract::State,
+  http::StatusCode,
+  response::IntoResponse,
+  routing::{get, post},
+};
+use sqlx::PgPool;
 
 use crate::domains::entities::city::City;
 
 pub fn city_routes() -> Router<PgPool> {
-  Router::new().route("/cities", get(get_all_cities))
+  Router::new()
+    .route("/city", get(get_all_cities))
+    .route("/city", post(create_city))
 }
 
 async fn get_all_cities(State(db): State<PgPool>) -> impl IntoResponse {
@@ -16,11 +24,39 @@ async fn get_all_cities(State(db): State<PgPool>) -> impl IntoResponse {
     "#,
   )
   .fetch_all(&db)
-  .await {
+  .await
+  {
     Ok(cities) => (StatusCode::OK, Json(cities)).into_response(),
     Err(err) => (
       StatusCode::INTERNAL_SERVER_ERROR,
       format!("Database error while fetching cities: {err}"),
-    ).into_response(),
+    )
+      .into_response(),
+  }
+}
+
+async fn create_city(State(db): State<PgPool>, Json(city): Json<City>) -> impl IntoResponse {
+  match sqlx::query_as::<_, City>(
+    r#"
+    INSERT INTO city (department_code, insee_code, zip_code, name, lat, lon)
+    VALUES ($1, $2, $3, $4, $5, $6)
+    RETURNING id, department_code, insee_code, zip_code, name, lat, lon
+    "#,
+  )
+  .bind(&city.department_code)
+  .bind(&city.insee_code)
+  .bind(&city.zip_code)
+  .bind(&city.name)
+  .bind(city.lat)
+  .bind(city.lon)
+  .fetch_one(&db)
+  .await
+  {
+    Ok(created_city) => (StatusCode::CREATED, Json(created_city)).into_response(),
+    Err(err) => (
+      StatusCode::INTERNAL_SERVER_ERROR,
+      format!("Database error while creating city: {err}"),
+    )
+      .into_response(),
   }
 }
