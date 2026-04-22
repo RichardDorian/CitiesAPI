@@ -7,7 +7,7 @@ use axum::{
 };
 use sqlx::PgPool;
 
-use crate::domains::entities::city::City;
+use crate::domains::entities::city::{CreateCity, GetCity};
 
 pub fn city_routes() -> Router<PgPool> {
   Router::new()
@@ -16,7 +16,7 @@ pub fn city_routes() -> Router<PgPool> {
 }
 
 async fn get_all_cities(State(db): State<PgPool>) -> impl IntoResponse {
-  match sqlx::query_as::<_, City>(
+  match sqlx::query_as::<_, GetCity>(
     r#"
     SELECT id, department_code, insee_code, zip_code, name, lat, lon
     FROM city
@@ -35,8 +35,8 @@ async fn get_all_cities(State(db): State<PgPool>) -> impl IntoResponse {
   }
 }
 
-async fn create_city(State(db): State<PgPool>, Json(city): Json<City>) -> impl IntoResponse {
-  match sqlx::query_as::<_, City>(
+async fn create_city(State(db): State<PgPool>, Json(city): Json<CreateCity>) -> impl IntoResponse {
+  match sqlx::query_as::<_, GetCity>(
     r#"
     INSERT INTO city (department_code, insee_code, zip_code, name, lat, lon)
     VALUES ($1, $2, $3, $4, $5, $6)
