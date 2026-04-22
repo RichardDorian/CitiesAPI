@@ -5,7 +5,8 @@ on:
   pull_request:
 
 jobs:
-  lint:
+  pre-commit:
+    name: Pre-commit Hooks
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -15,33 +16,15 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: 1.94
-          components: clippy
+          components: clippy, rustfmt
 
-      - name: Lint
-        run: cargo clippy --workspace --all-targets -- -D warnings
-
-  format:
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          toolchain: 1.94
-          components: rustfmt
+          python-version: "3.12"
 
-      - name: Check formatting
-        run: cargo fmt --all -- --check
+      - name: Install pre-commit
+        run: python -m pip install --upgrade pip pre-commit
 
-  hadolint:
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-
-      - name: Lint Dockerfile with hadolint
-        uses: hadolint/hadolint-action@v3.1.0
-        with:
-          dockerfile: Dockerfile
+      - name: Run pre-commit hooks
+        run: pre-commit run --all-files --show-diff-on-failure
