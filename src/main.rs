@@ -2,13 +2,22 @@ use std::env;
 use std::net::SocketAddr;
 
 use crate::app::create_router;
+use sqlx::postgres::PgPoolOptions;
 
 pub mod app;
 pub mod domains;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-  let app = create_router();
+  let database_url = env::var("DATABASE_URL")
+    .unwrap_or_else(|_| "postgres://postgres:password@localhost:5432/city_api".to_owned());
+
+  let db_pool = PgPoolOptions::new()
+    .max_connections(5)
+    .connect(&database_url)
+    .await?;
+
+  let app = create_router(db_pool);
 
   let addr = env::var("CITY_API_ADDR").unwrap_or_else(|_| "127.0.0.1".to_owned());
   let port = env::var("CITY_API_PORT")
