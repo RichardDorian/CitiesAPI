@@ -26,5 +26,10 @@ jobs:
       - name: Install pre-commit
         run: python -m pip install --upgrade pip pre-commit
 
+      - name: Install hadolint
+        run: |
+          sudo wget -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/latest/download/hadolint-$(uname -s)-$(uname -m)
+          sudo chmod +x /usr/local/bin/hadolint
+
       - name: Run pre-commit hooks
         run: pre-commit run --all-files --show-diff-on-failure
