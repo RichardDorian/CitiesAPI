@@ -1,5 +1,6 @@
-use std::env;
 use std::net::SocketAddr;
+
+use clap::Parser;
 
 use crate::app::create_router;
 use sqlx::postgres::PgPoolOptions;
@@ -7,25 +8,41 @@ use sqlx::postgres::PgPoolOptions;
 pub mod app;
 pub mod domains;
 
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+  #[arg(
+    short = 'c',
+    long = "host",
+    env = "CITY_API_ADDR",
+    default_value = "127.0.0.1"
+  )]
+  api_addr: String,
+
+  #[arg(
+    short = 'p',
+    long = "port",
+    env = "CITY_API_PORT",
+    default_value_t = 2022
+  )]
+  api_port: u16,
+
+  #[arg(long = "db", env = "CITY_API_DB_URL")]
+  db_url: String,
+}
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-  let database_url = env::var("DATABASE_URL")
-    .unwrap_or_else(|_| "postgres://postgres:password@localhost:5432/city_api".to_owned());
+  let args = Args::parse();
 
   let db_pool = PgPoolOptions::new()
     .max_connections(5)
-    .connect(&database_url)
+    .connect(&args.db_url)
     .await?;
 
   let app = create_router(db_pool);
 
-  let addr = env::var("CITY_API_ADDR").unwrap_or_else(|_| "127.0.0.1".to_owned());
-  let port = env::var("CITY_API_PORT")
-    .unwrap_or_else(|_| "2022".to_owned())
-    .parse::<u16>()
-    .expect("CITY_API_PORT must be a valid port number.");
-
-  let socket_addr = format!("{addr}:{port}")
+  let socket_addr = format!("{}:{}", args.api_addr, args.api_port)
     .parse::<SocketAddr>()
     .expect("Invalid socket address.");
 
