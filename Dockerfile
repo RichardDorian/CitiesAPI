@@ -1,6 +1,3 @@
-# Pin the Rust toolchain version used in the build stage.
-ARG RUST_VERSION=1.94
-
 # Name of the compiled binary produced by Cargo (must match Cargo.toml package name).
 ARG APP_NAME=citiesapi
 
@@ -9,7 +6,7 @@ ARG APP_NAME=citiesapi
 # This stage compiles the application.
 ################################################################################
 
-FROM docker.io/library/rust:${RUST_VERSION}-alpine AS build
+FROM docker.io/library/rust:1.94-alpine AS build
 
 # Re-declare args inside the stage if you want to use them here.
 ARG APP_NAME
