@@ -14,5 +14,3 @@ vulnerability:
 exit-code: 1
 
 list-all-pkgs: true
-
-format: table
