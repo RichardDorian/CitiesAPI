@@ -2,15 +2,14 @@ FROM lukemathwalker/cargo-chef:0.1.77-rust-1.95 AS chef
 WORKDIR /app
 
 FROM chef AS planner
-COPY . .
+COPY Cargo.toml Cargo.lock ./
+COPY src/ ./src
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
-# Build dependencies - this is the caching Docker layer!
 RUN cargo chef cook --release --recipe-path recipe.json
-# Build application
-COPY . .
+COPY Cargo.toml Cargo.lock src/ ./
 RUN cargo build --release
 
 FROM docker.io/library/debian:trixie-slim AS runtime
@@ -21,6 +20,6 @@ LABEL org.opencontainers.image.base.name="docker.io/library/debian:trixie-slim"
 
 WORKDIR /app
 
-COPY --from=builder /target/release/citiesapi /usr/local/bin
+COPY --from=builder /app/target/release/citiesapi /usr/local/bin
 
-ENTRYPOINT ["/usr/local/bin/app"]
+ENTRYPOINT ["/usr/local/bin/citiesapi"]
