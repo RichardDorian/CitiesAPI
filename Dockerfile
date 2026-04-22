@@ -6,7 +6,7 @@ ARG APP_NAME=citiesapi
 # This stage compiles the application.
 ################################################################################
 
-FROM docker.io/library/rust:1.94-alpine AS build
+FROM docker.io/library/rust:1.94-alpine@sha256:77237dd363a0b127bb5ef532c2d64c0deb380b738e43a9c4bdac73398d6d0a08 AS build
 
 # Re-declare args inside the stage if you want to use them here.
 ARG APP_NAME
