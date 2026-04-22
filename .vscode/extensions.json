@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "aquasecurityofficial.trivy-vulnerability-scanner",
+    "docker.docker",
+    "tamasfe.even-better-toml",
+    "rust-lang.rust-analyzer"
+  ]
+}
