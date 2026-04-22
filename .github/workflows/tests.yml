@@ -5,8 +5,8 @@ on:
   pull_request:
 
 jobs:
-  test:
-    name: Test
+  tests-and-coverage:
+    name: Tests And Coverage
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -18,64 +18,40 @@ jobs:
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
 
-      - name: Cache cargo and build artifacts
-        uses: Swatinem/rust-cache@v2
-
-      - name: Run tests with coverage instrumentation
+      - name: Run tests and build reports
         run: |
-          mkdir -p artifacts
+          mkdir -p artifacts coverage
           cargo llvm-cov clean --workspace
+          set +e
           cargo llvm-cov test --workspace --lib --bins --no-report 2>&1 | tee artifacts/test-results.txt
-          tar -czf artifacts/raw-coverage-data.tar.gz target/llvm-cov-target
+          test_exit=${PIPESTATUS[0]}
 
-      - name: Upload test results
+          cargo llvm-cov report --workspace --lcov --output-path coverage/lcov.info --html --output-dir coverage/html
+          report_exit=$?
+
+          {
+            echo "# Test Results"
+            echo
+            echo "Generated on $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+            echo
+            echo '```text'
+            cat artifacts/test-results.txt
+            echo '```'
+          } > artifacts/test-results.md
+
+          set -e
+          if [ "$test_exit" -ne 0 ]; then
+            exit "$test_exit"
+          fi
+          exit "$report_exit"
+
+      - name: Upload CI artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
-          path: artifacts/test-results.txt
-
-      - name: Upload raw coverage data
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: raw-coverage-data
-          path: artifacts/raw-coverage-data.tar.gz
-
-  coverage:
-    name: Coverage
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Install cargo-llvm-cov
-        uses: taiki-e/install-action@cargo-llvm-cov
-
-      - name: Download raw coverage data
-        uses: actions/download-artifact@v4
-        with:
-          name: raw-coverage-data
-          path: artifacts
-
-      - name: Restore raw coverage data
-        run: tar -xzf artifacts/raw-coverage-data.tar.gz
-
-      - name: Generate coverage reports (no test re-run)
-        run: |
-          mkdir -p coverage
-          cargo llvm-cov report --workspace --lcov --output-path coverage/lcov.info
-          cargo llvm-cov report --workspace --summary-only | tee coverage/summary.txt
-
-      - name: Upload coverage reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-reports
+          name: ci-artifacts
           path: |
+            artifacts/test-results.txt
+            artifacts/test-results.md
             coverage/lcov.info
-            coverage/summary.txt
+            coverage/html
