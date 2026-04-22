@@ -11,7 +11,7 @@ COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 # Build application
 COPY . .
-RUN cargo build --release --bin app
+RUN cargo build --release
 
 FROM docker.io/library/debian:trixie-slim AS runtime
 
@@ -21,6 +21,6 @@ LABEL org.opencontainers.image.base.name="docker.io/library/debian:trixie-slim"
 
 WORKDIR /app
 
-COPY --from=builder /app/target/release/app /usr/local/bin
+COPY --from=builder /target/release/citiesapi /usr/local/bin
 
 ENTRYPOINT ["/usr/local/bin/app"]
