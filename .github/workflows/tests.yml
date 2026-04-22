@@ -31,16 +31,6 @@ jobs:
           cargo llvm-cov report --html --output-dir coverage/html
           html_exit=$?
 
-          {
-            echo "# Test Results"
-            echo
-            echo "Generated on $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
-            echo
-            echo '```text'
-            cat artifacts/test-results.raw.txt
-            echo '```'
-          } > artifacts/test-results.md
-
           rm -f artifacts/test-results.raw.txt
 
           set -e
