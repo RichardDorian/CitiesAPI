@@ -14,13 +14,13 @@ permissions:
 jobs:
   fs-scan:
     name: Filesystem Scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6.0.2
 
       - name: Run Trivy on filesystem (vuln + secret + misconfig)
-        uses: aquasecurity/trivy-action@0.36.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           scan-ref: .
@@ -37,7 +37,7 @@ jobs:
 
   image-scan:
     name: Container Image Scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6.0.2
@@ -46,7 +46,7 @@ jobs:
         run: docker build -t citiesapi:${{ github.sha }} .
 
       - name: Run Trivy on container image
-        uses: aquasecurity/trivy-action@0.36.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: image
           image-ref: citiesapi:${{ github.sha }}
