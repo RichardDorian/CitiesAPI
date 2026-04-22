@@ -12,5 +12,3 @@ vulnerability:
   ignore-unfixed: false
 
 exit-code: 1
-
-list-all-pkgs: true
