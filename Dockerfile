@@ -35,7 +35,7 @@ RUN --mount=type=bind,source=src,target=src \
 # This stage runs the already-compiled binary with minimal dependencies.
 ################################################################################
 
-FROM docker.io/library/alpine:3.18 AS final
+FROM docker.io/library/alpine:3.18@sha256:de0eb0b3f2a47ba1eb89389859a9bd88b28e82f5826b6969ad604979713c2d4f AS final
 
 LABEL org.opencontainers.image.title="CitiesAPI"
 LABEL org.opencontainers.image.description="Simple cities API written in Rust."
