@@ -50,7 +50,7 @@ RUN adduser \
   --home "/nonexistent" \
   --shell "/sbin/nologin" \
   --no-create-home \
-  --uid "${UID}" \
+  --uid 10001 \
   appuser
 
 # Drop privileges for runtime.
