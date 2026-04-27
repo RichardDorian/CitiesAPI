@@ -1,0 +1,63 @@
+name: Code quality
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  CONTAINER_REGISTRY: ghcr.io
+
+jobs:
+  release:
+    name: Release (tag)
+    runs-on: ubuntu-24.04
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    env:
+      IMAGE: ${{ env.CONTAINER_REGISTRY }}/richarddorian/citiesapi
+      RELEASE_TAG: ${{ github.ref_name }}
+      SOURCE_TAG: ${{ github.sha }}
+    steps:
+      - name: Verify Docker is available
+        run: |
+          docker --version
+          docker buildx version
+
+      - name: Verify tag is SemVer
+        shell: bash
+        run: |
+          set -euo pipefail
+          semver_re='^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?(\+[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$'
+          if [[ ! "${RELEASE_TAG}" =~ ${semver_re} ]]; then
+            echo "Tag '${RELEASE_TAG}' is not SemVer compliant. Expected vMAJOR.MINOR.PATCH[-PRERELEASE][+BUILD]."
+          fi
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.CONTAINER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Stop if image tag already exists
+        run: |
+          set -euo pipefail
+          if docker buildx imagetools inspect "${IMAGE}:${RELEASE_TAG}" >/dev/null 2>&1; then
+            echo "Image ${IMAGE}:${RELEASE_TAG} already exists. Stopping workflow."
+            exit 1
+          fi
+
+      - name: Publish image for tag
+        run: |
+          set -euo pipefail
+          echo "Retagging ${IMAGE}:${SOURCE_TAG} -> ${IMAGE}:${RELEASE_TAG}"
+          docker buildx imagetools create \
+            -t "${IMAGE}:${RELEASE_TAG}" \
+            "${IMAGE}:${SOURCE_TAG}"
