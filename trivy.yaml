@@ -1,0 +1,14 @@
+scan:
+  scanners:
+    - vuln
+    - secret
+    - misconfig
+
+severity:
+  - HIGH
+  - CRITICAL
+
+vulnerability:
+  ignore-unfixed: false
+
+exit-code: 1
