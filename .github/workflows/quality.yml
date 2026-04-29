@@ -9,7 +9,7 @@ on:
       - tests/**
       - .github/workflows/**
       - Dockerfile
-      - trivis.yml
+      - trivy.yml
       - .pre-commit-config.yaml
       - Cargo.toml
       - compose.yml
