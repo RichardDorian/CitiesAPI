@@ -16,7 +16,6 @@ on:
       - renovate.json
       - rustfmt.toml
 
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
