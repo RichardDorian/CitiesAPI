@@ -49,9 +49,9 @@ async fn test_healthcheck_is_ok_when_server_is_launched() {
 
 #[tokio::test]
 async fn test_add_city_response_matches_payload() {
-  let Some(server) = support::try_spawn_app().await else {
-    return;
-  };
+  let server = support::try_spawn_app()
+    .await
+    .expect("No database running locally to run tests");
 
   let cities_url = server.url("/city");
 
@@ -94,9 +94,9 @@ async fn test_add_city_response_matches_payload() {
 
 #[tokio::test]
 async fn test_add_city_fails_when_missing_mandatory_fields() {
-  let Some(server) = support::try_spawn_app().await else {
-    return;
-  };
+  let server = support::try_spawn_app()
+    .await
+    .expect("No database running locally to run tests");
 
   let cities_url = server.url("/city");
 
@@ -129,9 +129,9 @@ async fn test_add_city_fails_when_missing_mandatory_fields() {
 
 #[tokio::test]
 async fn test_get_cities_returns_inserted_city() {
-  let Some(server) = support::try_spawn_app().await else {
-    return;
-  };
+  let server = support::try_spawn_app()
+    .await
+    .expect("No database running locally to run tests");
 
   let cities_url = server.url("/city");
 

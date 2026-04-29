@@ -28,5 +28,24 @@ jobs:
         with:
           toolchain: 1.95
 
+      - name: Setup Env
+        run: cp .env.example .env
+
       - name: Test
-        run: cargo test
+        run: |
+          docker compose up -d
+          for i in $(seq 1 30); do
+            if docker compose exec -T postgres pg_isready -U postgres > /dev/null 2>&1; then
+              break
+            fi
+            sleep 1
+          done
+          if ! docker compose exec -T postgres pg_isready -U postgres > /dev/null 2>&1; then
+            echo "::error::Failed to connect to the PostgreSQL database within 30 seconds"
+            exit 1
+          fi
+          cargo test
+
+      - name: Teardown
+        if: always()
+        run: docker compose down -v
