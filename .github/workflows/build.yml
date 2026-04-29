@@ -84,7 +84,7 @@ jobs:
         id: build
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7
         with:
-          push: ${{ github.event_name == 'push' }} # Only push Fhe image if we're on main
+          push: ${{ github.event_name == 'push' }} # Only push the image if we're on main
           platforms: linux/arm64
           outputs: type=image,name=${{ env.CONTAINER_REGISTRY }}/richarddorian/citiesapi,push-by-digest=true,name-canonical=true
           cache-from: type=gha,scope=buildkit-arm64
