@@ -21,6 +21,10 @@
       "enabled": false
     },
     {
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
+    },
+    {
       "matchDepTypes": ["devDependencies"],
       "matchUpdateTypes": ["minor", "patch"],
       "groupName": "all non-major dev dependencies"
