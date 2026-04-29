@@ -31,6 +31,7 @@ jobs:
           format: sarif
           output: trivy-fs.sarif
           trivy-config: trivy.yaml
+          cache: false
 
       - name: Upload filesystem scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
@@ -57,6 +58,7 @@ jobs:
           format: sarif
           output: trivy-image.sarif
           trivy-config: trivy.yaml
+          cache: false
 
       - name: Upload image scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@95e58e9a2cdfd71adc6e0353d5c52f41a045d225 # v4.35.2
