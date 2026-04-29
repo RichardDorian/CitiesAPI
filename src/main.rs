@@ -33,7 +33,7 @@ struct Args {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-  println!("Hello");
+  println!("Hello World!");
 
   let args = Args::parse();
 
