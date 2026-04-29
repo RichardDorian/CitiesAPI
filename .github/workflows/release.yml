@@ -20,7 +20,6 @@ jobs:
   oci-image:
     name: Build and push release OCI image
     runs-on: ubuntu-24.04
-    if: ${{ github.ref_type == 'tag' }}
     env:
       RELEASE_TAG: ${{ github.ref_name }}
     steps:
