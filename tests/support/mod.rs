@@ -86,7 +86,13 @@ pub async fn try_pg_pool() -> Option<PgPool> {
     .connect_with(options)
     .await
   {
-    Ok(db) => Some(db),
+    Ok(db) => {
+      if let Err(e) = sqlx::migrate!().run(&db).await {
+        eprintln!("Failed to run migrations: {e}");
+        return None;
+      }
+      Some(db)
+    }
     Err(err) => {
       eprintln!("Skipping test: cannot connect to Postgres ({err})");
       None
