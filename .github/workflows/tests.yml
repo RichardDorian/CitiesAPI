@@ -20,6 +20,16 @@ permissions:
 jobs:
   tests:
     runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:18.3-alpine@sha256:54451ecb8ab38c24c3ec123f2fd501303a3a1856a5c66e98cecf2460d5e1e9d7
+        env:
+          POSTGRES_DB: city_api
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        options: >-
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -33,19 +43,7 @@ jobs:
         run: cp .env.example .env
 
       - name: Test
-        run: |
-          docker compose up -d
-          for i in $(seq 1 30); do
-            if docker compose exec -T postgres pg_isready -U postgres > /dev/null 2>&1; then
-              break
-            fi
-            sleep 1
-          done
-          if ! docker compose exec -T postgres pg_isready -U postgres > /dev/null 2>&1; then
-            echo "::error::Failed to connect to the PostgreSQL database within 30 seconds"
-            exit 1
-          fi
-          cargo test
+        run: cargo test
 
       - name: Teardown
         if: always()
