@@ -7,7 +7,15 @@ on:
     paths:
       - src/**
       - tests/**
+      - .github/workflows/**
       - Dockerfile
+      - trivis.yml
+      - .pre-commit-config.yaml
+      - Cargo.toml
+      - compose.yml
+      - renovate.json
+      - rustfmt.toml
+
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
