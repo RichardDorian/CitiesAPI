@@ -19,6 +19,11 @@
         "lockFileMaintenance"
       ],
       "enabled": false
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "all non-major dev dependencies"
     }
   ]
 }
