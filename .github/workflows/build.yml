@@ -96,6 +96,7 @@ jobs:
     needs:
       - build-amd64
       - build-arm64
+    if: github.event_name == 'push'
     steps:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4
