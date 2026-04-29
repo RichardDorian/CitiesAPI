@@ -40,6 +40,8 @@ async fn main() -> anyhow::Result<()> {
     .connect(&args.db_url)
     .await?;
 
+  sqlx::migrate!().run(&db_pool).await?;
+
   let app = create_router(db_pool);
 
   let socket_addr = format!("{}:{}", args.api_addr, args.api_port)
