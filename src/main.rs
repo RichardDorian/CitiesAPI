@@ -33,6 +33,8 @@ struct Args {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+  println!("Hello");
+
   let args = Args::parse();
 
   let db_pool = PgPoolOptions::new()
