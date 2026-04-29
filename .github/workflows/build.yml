@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+    paths:
+      - migrations/**
+      - src/**
+      - tests/**
+      - Cargo*
+      - Dockerfile
 
 permissions:
   contents: read
@@ -90,7 +96,6 @@ jobs:
 
       - name: Create and push manifest
         run: >-
-          docker buildx imagetools create
-          -t ${{ env.CONTAINER_REGISTRY }}/richarddorian/citiesapi:${{ github.sha }}
+          docker buildx imagetools create -t ${{ env.CONTAINER_REGISTRY }}/richarddorian/citiesapi:${{ github.sha }}
           ${{ env.CONTAINER_REGISTRY }}/richarddorian/citiesapi@${{ needs.build-amd64.outputs.digest }}
           ${{ env.CONTAINER_REGISTRY }}/richarddorian/citiesapi@${{ needs.build-arm64.outputs.digest }}
