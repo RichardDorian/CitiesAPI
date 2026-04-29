@@ -19,6 +19,7 @@ on:
       - tests/**
       - Cargo*
       - Dockerfile
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -55,7 +56,7 @@ jobs:
         id: build
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7
         with:
-          push: ${{ github.event_name == 'push' }} # Only push the image if we're on main
+          push: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }} # Only push the image if we're on main
           platforms: linux/amd64
           outputs: type=image,name=${{ env.CONTAINER_REGISTRY }}/richarddorian/citiesapi,push-by-digest=true,name-canonical=true
           cache-from: type=gha,scope=buildkit-amd64
@@ -84,7 +85,7 @@ jobs:
         id: build
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7
         with:
-          push: ${{ github.event_name == 'push' }} # Only push the image if we're on main
+          push: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }} # Only push the image if we're on main
           platforms: linux/arm64
           outputs: type=image,name=${{ env.CONTAINER_REGISTRY }}/richarddorian/citiesapi,push-by-digest=true,name-canonical=true
           cache-from: type=gha,scope=buildkit-arm64
@@ -96,7 +97,7 @@ jobs:
     needs:
       - build-amd64
       - build-arm64
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     steps:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4
