@@ -15,6 +15,7 @@ on:
       - compose.yml
       - renovate.json
       - rustfmt.toml
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
